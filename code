@@ -1,0 +1,66 @@
+#include <Adafruit_NeoPixel.h>
+#ifdef _AVR_
+  #include <avr/power.h>
+#endif
+
+// Definindo o pino do botão e dos LEDs
+#define PIN_BUTTON  2
+#define PIN         9
+#define APIXELS     150
+
+// Inicializando a biblioteca NeoPixel, especificando número de pixels, pino e ordem de cor NEO_RGB
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(APIXELS, PIN, NEO_RGB + NEO_KHZ800);
+
+int delayval = 0.1; // atraso em milissegundos para o efeito de sabre de luz (reduzido para acelerar)
+int buttonState = 0; // Variável para armazenar o estado do botão
+int lastButtonState = HIGH; // Estado anterior do botão
+bool ledsOn = false; // Variável para armazenar o estado dos LEDs
+bool effectActive = false; // Controla se o efeito está ativo
+
+void setup() {
+  // Configurando o botão como entrada com pull-up interno
+  pinMode(PIN_BUTTON, INPUT_PULLUP);
+
+  // Inicializa a biblioteca NeoPixel
+  pixels.begin();
+  pixels.setBrightness(100); // Define o brilho para 100% 255max
+}
+
+void loop() {
+  // Ler o estado atual do botão
+  buttonState = digitalRead(PIN_BUTTON);
+
+  // Se o botão mudou de estado
+  if (buttonState != lastButtonState) {
+    // Se o botão foi pressionado (LOW) e anteriormente estava solto
+    if (buttonState == LOW) {
+      if (ledsOn) {
+        // Desativar o efeito e apagar os LEDs do último para o primeiro
+        effectActive = false; // Desativa o efeito
+        ledsOn = false; // Atualiza o estado dos LEDs
+        // Efeito para apagar LEDs do último ao primeiro
+        for (int i = APIXELS - 1; i >= 0; i--) {
+          pixels.setPixelColor(i, 0, 0, 0); // Definindo a cor preta (apagado) no padrão RGB
+          pixels.show(); // Atualiza a cor no hardware
+          delay(delayval); // Atraso entre LEDs
+        }
+      } else {
+        // Ativar o efeito de sabre de luz e acender os LEDs
+        effectActive = true; // Ativa o efeito
+        ledsOn = true; // Atualiza o estado dos LEDs
+        // Efeito de sabre de luz
+        for (int i = 0; i < APIXELS; i++) {
+          pixels.setPixelColor(i, 255, 255, 255); // Definindo a cor branca no padrão RGB
+          pixels.show(); // Atualiza a cor no hardware
+          delay(delayval); // Atraso entre LEDs
+        }
+      }
+      // Aguarda um tempo para evitar múltiplos acionamentos
+      delay(100); // Pequeno atraso para evitar debounce
+    }
+    // Atualiza o estado anterior do botão
+    lastButtonState = buttonState;
+  }
+
+  delay(15); // Pequeno atraso para estabilizar a leitura
+}
