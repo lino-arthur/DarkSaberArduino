@@ -7,3 +7,7 @@ ________________________________________________________________________________
 - Fita led endereçavel ws2812b
 - Fios coloridos 1mm
 - Ferro de solda e estanho para soldagem
+
+________________________________________________________________________________
+# Proximos passos
+- Criar diagrama de soldagem na placa com os pinos informados no código
